@@ -1,8 +1,7 @@
 // Placeholder data for the Dashboard while the API service layer is built.
 // Shapes match src/types so swapping in real endpoints is a drop-in change.
-import type { Stats, ConfidenceMetrics, Detection, Alert } from '@/types'
+import type { Stats, ConfidenceMetrics, Detection, Alert, SystemMetrics } from '@/types'
 import type { FeedBox } from '@/components/monitor/LiveFeed'
-import type { SystemMetrics } from '@/components/dashboard/SystemCore'
 
 export const mockStats: Stats = {
   totalDetections: 1248,
@@ -25,6 +24,7 @@ export const mockSystem: SystemMetrics = {
   throughputFps: 3.0,
   provider: 'CPU · ONNXRuntime',
   uptime: '07:42:11',
+  healthy: true,
 }
 
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString()

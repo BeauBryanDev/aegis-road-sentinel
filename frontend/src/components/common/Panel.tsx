@@ -2,16 +2,15 @@ import type { ReactNode } from 'react'
 
 interface PanelProps {
   title?: string
-  /** Optional content rendered on the right of the title bar (badges, actions). */
+ 
   action?: ReactNode
   children: ReactNode
-  /** Remove inner padding (e.g. for edge-to-edge media like the live feed). */
+ 
   flush?: boolean
   className?: string
   bodyClassName?: string
 }
 
-/** Titled HUD panel with corner brackets — the standard console container. */
 export default function Panel({
   title,
   action,

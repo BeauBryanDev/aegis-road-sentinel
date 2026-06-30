@@ -2,13 +2,7 @@ import { Cpu, Gauge, Timer, Server } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import Panel from '@/components/common/Panel'
 import StatusBadge from '@/components/common/StatusBadge'
-
-export interface SystemMetrics {
-  avgProcessingMs: number
-  throughputFps: number
-  provider: string // e.g. "CPU · ONNXRuntime"
-  uptime: string // e.g. "07:42:11"
-}
+import type { SystemMetrics } from '@/types'
 
 interface SystemCoreProps {
   metrics: SystemMetrics
@@ -24,7 +18,14 @@ export default function SystemCore({ metrics }: SystemCoreProps) {
   ]
 
   return (
-    <Panel title="System Core" action={<StatusBadge status="online">Online</StatusBadge>}>
+    <Panel
+      title="System Core"
+      action={
+        <StatusBadge status={metrics.healthy ? 'online' : 'warning'}>
+          {metrics.healthy ? 'Online' : 'Degraded'}
+        </StatusBadge>
+      }
+    >
       <div className="flex flex-col divide-y divide-cyber-border">
         {rows.map(({ icon: Icon, label, value }) => (
           <div key={label} className="flex items-center justify-between py-2 text-[12px]">

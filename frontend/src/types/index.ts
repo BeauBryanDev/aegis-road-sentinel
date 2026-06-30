@@ -43,6 +43,15 @@ export interface Stats {
   avgProcessingMs: number
 }
 
+/** Live pipeline / system telemetry for the System Core panel. */
+export interface SystemMetrics {
+  avgProcessingMs: number
+  throughputFps: number
+  provider: string // e.g. "CPU · ONNXRuntime"
+  uptime: string // e.g. "07:42:11"
+  healthy: boolean
+}
+
 export type AlertLevel = 'info' | 'warning' | 'critical'
 
 export interface Alert {

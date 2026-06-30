@@ -26,7 +26,7 @@ export default function MobileLayout() {
       {/* Bottom tab bar */}
       <nav className="flex items-stretch border-t border-cyber-border bg-cyber-panel/95 backdrop-blur-sm">
         {MOBILE_TABS.map(({ to, shortLabel, icon: Icon }) => (
-          <NavLink key={to} to={to} end={to === '/'} className={tabClass}>
+          <NavLink key={to} to={to} end={to === '/app'} className={tabClass}>
             {({ isActive }) => (
               <>
                 <Icon className={`h-5 w-5 ${isActive ? 'drop-shadow-[0_0_5px_rgba(255,192,30,0.6)]' : ''}`} />
@@ -66,7 +66,7 @@ export default function MobileLayout() {
                 <NavLink
                   key={to}
                   to={to}
-                  end={to === '/'}
+                  end={to === '/app'}
                   onClick={() => setMenuOpen(false)}
                   className={({ isActive }) =>
                     [

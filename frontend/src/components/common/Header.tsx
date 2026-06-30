@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import { ShieldAlert } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ShieldAlert, Home, LogOut } from 'lucide-react'
 import { APP_NAME, APP_SUBTITLE } from '@/types/constant'
+import { useAppStore } from '@/stores/useAppStore'
 import StatusBadge from './StatusBadge'
 
 function useClock() {
@@ -23,6 +25,17 @@ interface HeaderProps {
 export default function Header({ compact = false, right }: HeaderProps) {
   const now = useClock()
   const time = now.toLocaleTimeString('en-GB', { hour12: false })
+  const navigate = useNavigate()
+  const token = useAppStore((s) => s.token)
+  const logout = useAppStore((s) => s.logout)
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
+
+  const iconBtn =
+    'flex items-center justify-center rounded-sm border border-cyber-border p-1.5 text-cyber-muted transition-colors hover:border-cyber-gold/60 hover:text-cyber-gold'
 
   return (
     <header className="flex h-14 items-center justify-between border-b border-cyber-border bg-cyber-panel/90 px-4 backdrop-blur-sm">
@@ -47,8 +60,8 @@ export default function Header({ compact = false, right }: HeaderProps) {
         </div>
       )}
 
-      {/* Right: status / custom slot */}
-      <div className="flex items-center gap-3">
+      {/* Right: status / custom slot + session controls */}
+      <div className="flex items-center gap-2.5">
         {right ?? (
           <>
             <StatusBadge status="online" pulse>
@@ -60,6 +73,18 @@ export default function Header({ compact = false, right }: HeaderProps) {
               </StatusBadge>
             )}
           </>
+        )}
+
+        {/* Return to the public landing page */}
+        <Link to="/" title="Home" aria-label="Home" className={iconBtn}>
+          <Home className="h-4 w-4" />
+        </Link>
+
+        {/* Sign out (only when authenticated) */}
+        {token && (
+          <button type="button" onClick={handleLogout} title="Sign out" aria-label="Sign out" className={iconBtn}>
+            <LogOut className="h-4 w-4" />
+          </button>
         )}
       </div>
     </header>

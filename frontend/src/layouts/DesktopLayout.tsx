@@ -18,7 +18,7 @@ export default function DesktopLayout() {
             <NavLink
               key={to}
               to={to}
-              end={to === '/'}
+              end={to === '/app'}
               className={({ isActive }) =>
                 [
                   'group relative flex items-center gap-3 rounded-sm px-3 py-2 text-[13px] tracking-wide transition-colors',

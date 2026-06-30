@@ -27,15 +27,18 @@ export interface NavItem {
  * Full navigation set, mirroring the desktop sidebar in the mockup.
  * Traffic Signs / Crash / Network panels are intentionally omitted (out of scope).
  */
+/** Base path for the authenticated console (public site lives at `/`). */
+export const APP_BASE = '/app'
+
 export const NAV_ITEMS: NavItem[] = [
-  { to: '/', label: 'Dashboard', shortLabel: 'Home', icon: LayoutDashboard },
-  { to: '/live', label: 'Live Monitor', shortLabel: 'Live', icon: Video, mobileTab: true },
-  { to: '/analytics', label: 'Vehicle Analytics', shortLabel: 'Analytics', icon: BarChart3, mobileTab: true },
-  { to: '/plates', label: 'License Plates', shortLabel: 'Plates', icon: ScanLine, mobileTab: true },
-  { to: '/alerts', label: 'Alerts', shortLabel: 'Alerts', icon: Bell, mobileTab: true },
-  { to: '/reports', label: 'Reports', shortLabel: 'Reports', icon: FileText },
-  { to: '/logs', label: 'System Logs', shortLabel: 'Logs', icon: Terminal },
-  { to: '/settings', label: 'Configuration', shortLabel: 'Config', icon: Settings },
+  { to: '/app', label: 'Dashboard', shortLabel: 'Home', icon: LayoutDashboard },
+  { to: '/app/live', label: 'Live Monitor', shortLabel: 'Live', icon: Video, mobileTab: true },
+  { to: '/app/analytics', label: 'Vehicle Analytics', shortLabel: 'Analytics', icon: BarChart3, mobileTab: true },
+  { to: '/app/plates', label: 'License Plates', shortLabel: 'Plates', icon: ScanLine, mobileTab: true },
+  { to: '/app/alerts', label: 'Alerts', shortLabel: 'Alerts', icon: Bell, mobileTab: true },
+  { to: '/app/reports', label: 'Reports', shortLabel: 'Reports', icon: FileText },
+  { to: '/app/logs', label: 'System Logs', shortLabel: 'Logs', icon: Terminal },
+  { to: '/app/settings', label: 'Configuration', shortLabel: 'Config', icon: Settings },
 ]
 
 /** Items shown directly in the mobile bottom tab bar (rest live behind "Menu"). */

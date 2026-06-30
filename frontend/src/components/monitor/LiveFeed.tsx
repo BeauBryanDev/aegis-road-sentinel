@@ -1,4 +1,4 @@
-import roadImg from '@/assets/aegis_road.webp'
+import roadImg from '@/assets/aegis_anpr.webp'
 import ScanLine from '@/components/common/ScanLine'
 import DateTime from '@/components/common/Date'
 import { formatPercent } from '@/types/formatter'

@@ -6,14 +6,14 @@ export default {
       colors: {
         // Aegis Road Sentinel — gold/amber HUD on black  
         cyber: {
-          bg: '#05060a', // near-black page background
-          panel: '#0c0f16', // panel fill
-          'panel-2': '#11151f', // raised/inner panel fill
-          border: '#2a2410', // dim gold-tinted panel border
+          bg: '#05060a',  // background
+          panel: '#0c0f16',  
+          'panel-2': '#11151f',  
+          border: '#2a2410', 
           // amber/gold accent scale (primary brand color)
           gold: '#ffc01e', // main accent (borders, headings, bbox, bars)
           'gold-bright': '#ffe27a', // highlights / hover glow
-          'gold-dim': '#9a7b18', // muted labels, inactive
+          'gold-dim': '#9a7b18',  
           green: '#3bd16f', // success / authorized
           red: '#ff3b3b', // alert / not-authorized
           text: '#e8d9a8', // body text (warm off-white)
