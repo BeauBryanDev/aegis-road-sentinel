@@ -16,7 +16,7 @@ def _get_rank(value_info: Optional[onnx.ValueInfoProto]) -> Optional[int]:
         return None
     shape = t.tensor_type.shape
     if not shape:
-        return None
+        return None 
     return len(shape.dim)
 
 

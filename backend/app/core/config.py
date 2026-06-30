@@ -6,6 +6,11 @@ class Settings(BaseSettings):
     # Ignore unrelated keys already present in backend/.env (POSTGRES_*, etc.)
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
+    # --- Auth ---
+    secret_key: str = "change-me-in-production"  # overridden by SECRET_KEY in .env
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60 * 24  # 1 day
+
     # --- ML inference ---
     # CPU is the reliable default in the slim Docker image; flip to True only on a
     # CUDA-enabled host with onnxruntime-gpu installed.

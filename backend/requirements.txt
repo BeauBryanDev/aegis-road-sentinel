@@ -29,5 +29,8 @@ pillow==10.2.0
 boto3==1.34.62
 python-dotenv==1.0.1
 
+# Email validation (required by pydantic[email] / UserCreate schema)
+email-validator==2.1.1
+
 # Testing
 pytest==8.1.1

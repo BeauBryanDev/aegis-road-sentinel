@@ -3,10 +3,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 
 import app.db  # noqa: F401 — registers all ORM models so relationships resolve
 from app.services.pipelines.anpr_service import ANPRService
-from app.routers import license_plate, stats
+from app.routers import license_plate, stats, auth, vehicles, stream, health, users
 
 logger = logging.getLogger("carsrecong")
 
@@ -56,22 +57,47 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/api/health", tags=["System"])
-def health_check():
-    """
-    Simple health check endpoint to verify the API is running.
-    Useful for Docker health checks and initial debugging.
-    
-    Returns:
-        dict: A status dictionary indicating the service is operational.
-    """
-    return {
-        "status": "active",
-        "service": "carsrecong_api",
-        "message": "System is ready for ML inference"
-    }
-
-
 # Register API routers
+app.include_router(health.router)
 app.include_router(license_plate.router)
 app.include_router(stats.router)
+app.include_router(auth.router)
+app.include_router(vehicles.router)
+app.include_router(stream.router)
+app.include_router(users.router)
+
+
+def _custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+
+    # Add a plain HTTP Bearer scheme so Swagger shows a "paste your token" field.
+    schema.setdefault("components", {}).setdefault("securitySchemes", {})["BearerAuth"] = {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Paste your JWT access token (without the 'Bearer ' prefix).",
+    }
+
+    # Apply BearerAuth to every operation so the lock icon appears on all
+    # endpoints — protected ones enforce it, public ones ignore an extra header.
+    for path_item in schema.get("paths", {}).values():
+        for operation in path_item.values():
+            if not isinstance(operation, dict):
+                continue
+            security = operation.setdefault("security", [])
+            if {"BearerAuth": []} not in security:
+                security.append({"BearerAuth": []})
+
+    app.openapi_schema = schema
+    return schema
+
+
+app.openapi = _custom_openapi

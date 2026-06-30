@@ -1,11 +1,4 @@
-"""
-ANPR orchestration service.
 
-Composes the two-stage detector (vehicle + plate) and the OCR reader into a single
-pipeline. A single instance holds the loaded ONNX sessions and is safe to share across
-requests: ONNX Runtime's `InferenceSession.run` is thread-safe and this class keeps no
-per-request mutable state.
-"""
 from typing import Any, Dict, List
 
 import cv2
@@ -15,7 +8,14 @@ from app.core.config import settings
 from app.services.pipelines.inference import VehicleDetectionPipeline
 from app.services.pipelines.ocr_processor import PlateOCRProcessor
 from app.services.preprocessing import extract_plate_crop
+"""
+ANPR orchestration service.
 
+Composes the two-stage detector (vehicle + plate) and the OCR reader into a single
+pipeline. A single instance holds the loaded ONNX sessions and is safe to share across
+requests: ONNX Runtime's `InferenceSession.run` is thread-safe and this class keeps no
+per-request mutable state.
+"""
 
 class ANPRService:
     """End-to-end Automatic Number Plate Recognition pipeline."""

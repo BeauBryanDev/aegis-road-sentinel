@@ -76,7 +76,8 @@ class PlateOCRProcessor:
                 f"Dictionary size ({len(self.character_set)}) does not match model "
                 f"output classes ({num_classes}). OCR decoding would be misaligned."
             )
-
+    
+    # Careful with Tensor, it has been painfull problems with tensors shapes
     def _preprocess_for_crnn(self, plate_crop: np.ndarray) -> np.ndarray:
         """
         Resizes and zero-pads the plate crop to the static ONNX input [1, 3, 48, 320],

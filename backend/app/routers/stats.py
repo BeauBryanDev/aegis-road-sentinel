@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends
+from datetime import datetime
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -9,16 +12,31 @@ router = APIRouter(prefix="/api/stats", tags=["Stats"])
 
 
 @router.get("")
-def get_stats(db: Session = Depends(get_db)):
+def get_stats(
+    db: Session = Depends(get_db),
+    from_date: Optional[datetime] = Query(
+        None,
+        description="Filter detections from this datetime (ISO 8601, e.g. 2026-06-01T00:00:00).",
+    ),
+    to_date: Optional[datetime] = Query(
+        None,
+        description="Filter detections up to this datetime (ISO 8601).",
+    ),
+):
     """
-    Aggregate detection stats shown on the dashboard:
-    total detections, per-vehicle-type counts, average confidence scores,
-    allowed vs denied counts, and average processing time.
+    Aggregate detection stats for the dashboard.
+    Optionally scoped to a date range via `from_date` / `to_date`.
     """
-    total = db.query(func.count(Detection.id)).scalar() or 0
+    base = db.query(Detection)
+    if from_date:
+        base = base.filter(Detection.created_at >= from_date)
+    if to_date:
+        base = base.filter(Detection.created_at <= to_date)
+
+    total = base.with_entities(func.count(Detection.id)).scalar() or 0
 
     type_counts_raw = (
-        db.query(
+        base.with_entities(
             func.lower(Detection.vehicle_type).label("vtype"),
             func.count(Detection.id).label("cnt"),
         )
@@ -27,29 +45,31 @@ def get_stats(db: Session = Depends(get_db)):
     )
     type_counts = {row.vtype: row.cnt for row in type_counts_raw}
 
-    # Collapse Roboflow class names → UI display groups
-    cars = type_counts.get("car", 0)
-    trucks = type_counts.get("truck", 0) + type_counts.get("pickup-van", 0)
-    buses = type_counts.get("bus", 0) + type_counts.get("microbus", 0)
-    motorcycles = type_counts.get("motorbike", 0)
+    # Canonical types (post-bridge) stored in DB
+    cars       = type_counts.get("car", 0)
+    trucks     = type_counts.get("truck", 0)
+    buses      = type_counts.get("bus", 0)
+    motorcycles = type_counts.get("motorcycle", 0)
 
     avg_vehicle_conf = (
-        db.query(func.avg(Detection.vehicle_confidence))
+        base.with_entities(func.avg(Detection.vehicle_confidence))
         .filter(Detection.vehicle_confidence.isnot(None))
         .scalar()
     )
     avg_plate_conf = (
-        db.query(func.avg(Detection.plate_confidence))
+        base.with_entities(func.avg(Detection.plate_confidence))
         .filter(Detection.plate_confidence.isnot(None))
         .scalar()
     )
 
     allowed_count = (
-        db.query(func.count(Detection.id)).filter(Detection.is_allowed == True).scalar() or 0
+        base.with_entities(func.count(Detection.id))
+        .filter(Detection.is_allowed == True)
+        .scalar() or 0
     )
 
     avg_processing_ms = (
-        db.query(func.avg(Detection.processing_time_ms))
+        base.with_entities(func.avg(Detection.processing_time_ms))
         .filter(Detection.processing_time_ms.isnot(None))
         .scalar()
     )
@@ -71,4 +91,8 @@ def get_stats(db: Session = Depends(get_db)):
             "denied": total - allowed_count,
         },
         "avg_processing_ms": round(avg_processing_ms or 0.0, 2),
+        "period": {
+            "from": from_date.isoformat() if from_date else None,
+            "to": to_date.isoformat() if to_date else None,
+        },
     }

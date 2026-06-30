@@ -1,4 +1,5 @@
 
+
 import os
 import cv2
 import numpy as np
@@ -179,8 +180,11 @@ class VehicleDetectionPipeline:
 
         best_box = None
         best_conf = 0.0
+        
         for row in predictions:
+            
             conf = float(row[4])
+            
             if conf >= conf_threshold and conf > best_conf:
                 best_conf = conf
                 xc, yc, w, h = row[0], row[1], row[2], row[3]

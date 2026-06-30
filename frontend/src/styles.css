@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #05060a;
+}
+
+@layer components {
+  /* HUD panel: dim gold border + faint inner glow, used across every console panel */
+  .hud-panel {
+    @apply relative border border-cyber-border bg-cyber-panel/80 backdrop-blur-sm;
+  }
+
+  /* Section heading bar inside a panel */
+  .hud-title {
+    @apply text-[11px] font-semibold uppercase tracking-[0.2em] text-cyber-gold;
+  }
+
+  /* Corner brackets — decorative L-shapes on panel corners */
+  .hud-corners::before,
+  .hud-corners::after {
+    content: '';
+    @apply pointer-events-none absolute h-2.5 w-2.5 border-cyber-gold;
+  }
+  .hud-corners::before {
+    @apply left-0 top-0 border-l border-t;
+  }
+  .hud-corners::after {
+    @apply bottom-0 right-0 border-b border-r;
+  }
+}
+
+/* Thin gold scrollbars to match the HUD aesthetic */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2410 transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #2a2410;
+  border-radius: 3px;
+}

@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.session import get_db
 from app.crud.detection_crud import persist_detections
+from app.models.users import User
+from app.routers.deps import get_current_user
 from app.schemas.anpr_schema import AnprResponse, PlateDetection
 
 router = APIRouter(prefix="/api/anpr", tags=["ANPR"])
@@ -16,6 +18,7 @@ async def detect(
     request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     anpr_service = request.app.state.anpr_service
     if anpr_service is None:
@@ -46,7 +49,7 @@ async def detect(
     for det in raw_detections:
         det["processing_time_ms"] = elapsed_ms
 
-    enriched = persist_detections(db, raw_detections, source="upload")
+    enriched = persist_detections(db, raw_detections, source="upload", user_id=current_user.id)
 
     detections = [PlateDetection(**d) for d in enriched]
 
