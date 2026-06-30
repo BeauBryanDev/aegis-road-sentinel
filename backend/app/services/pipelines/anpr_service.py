@@ -12,9 +12,9 @@ import cv2
 import numpy as np
 
 from app.core.config import settings
-from app.ml.pipelines.inference import VehicleDetectionPipeline
-from app.ml.pipelines.ocr_processor import PlateOCRProcessor
-from app.ml.preprocessing import extract_plate_crop
+from app.services.pipelines.inference import VehicleDetectionPipeline
+from app.services.pipelines.ocr_processor import PlateOCRProcessor
+from app.services.preprocessing import extract_plate_crop
 
 
 class ANPRService:

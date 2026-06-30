@@ -4,8 +4,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import anpr
-from app.ml.pipelines.anpr_service import ANPRService
+import app.db  # noqa: F401 — registers all ORM models so relationships resolve
+from app.services.pipelines.anpr_service import ANPRService
+from app.routers import license_plate, stats
 
 logger = logging.getLogger("carsrecong")
 
@@ -72,4 +73,5 @@ def health_check():
 
 
 # Register API routers
-app.include_router(anpr.router)
+app.include_router(license_plate.router)
+app.include_router(stats.router)

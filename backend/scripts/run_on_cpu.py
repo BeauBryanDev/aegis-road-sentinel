@@ -17,7 +17,9 @@ def run_pipeline_test():
     """Executes the cascading ML models on a single RAW test image."""
     
     # We enforce the use of a raw, unedited street image for an end-to-end test.
-    image_path = os.path.join(backend_dir, "./test_vehicle_01.jpeg")
+    image_path = os.path.join(backend_dir, "raw_test_image.jpg")
+    debug_dir = os.path.join(backend_dir, "debug_out")
+    os.makedirs(debug_dir, exist_ok=True)
     
     print(f"[INFO] Loading image from: {image_path}")
     frame = cv2.imread(image_path)
@@ -36,19 +38,24 @@ def run_pipeline_test():
     # ---------------------------------------------------------
     print("[INFO] Running Stage 1: Vehicle Detection...")
     vehicles = vehicle_pipeline.detect_vehicles(frame, conf_threshold=0.5)
-    
+
+    print(f"[INFO] Vehicles detected: {len(vehicles)}")
     if not vehicles:
         print("[WARNING] No vehicles detected in the image.")
         return
-    
+
     for idx, vehicle in enumerate(vehicles):
-        print(f"\n--- Processing Vehicle {idx + 1} ({vehicle['class']}) ---")
-        
+        print(f"\n--- Processing Vehicle {idx + 1} ({vehicle['class']}, score={vehicle['score']:.3f}) ---")
+
         # ---------------------------------------------------------
         # STAGE 2: License Plate Detection (Crop & Infer)
         # ---------------------------------------------------------
         # Extract the vehicle crop with a 12% padding mapping
         vehicle_crop = extract_plate_crop(frame, vehicle['bbox'], padding=0.12)
+        if vehicle_crop.size == 0:
+            print("[WARNING] Empty vehicle crop, skipping.")
+            continue
+        cv2.imwrite(os.path.join(debug_dir, f"vehicle_{idx + 1}.jpg"), vehicle_crop)
         
         # Preprocess tensor for the Nano plate detector (static size 320x320)
         tensor, scale = vehicle_pipeline._preprocess_image(vehicle_crop, target_size=320)
@@ -77,18 +84,24 @@ def run_pipeline_test():
         if not best_plate_box:
             print("[WARNING] No license plate found on this vehicle.")
             continue
-            
-        # Extract the tight plate crop from the vehicle crop (no padding here)
-        plate_crop = extract_plate_crop(vehicle_crop, best_plate_box, padding=0.0)
-        
+
+        print(f"[INFO] Plate detected (conf={highest_conf:.3f})")
+
+        # Extract the tight plate crop from the vehicle crop (small padding helps OCR)
+        plate_crop = extract_plate_crop(vehicle_crop, best_plate_box, padding=0.05)
+        if plate_crop.size == 0:
+            print("[WARNING] Empty plate crop, skipping.")
+            continue
+        cv2.imwrite(os.path.join(debug_dir, f"plate_{idx + 1}.jpg"), plate_crop)
+
         # ---------------------------------------------------------
         # STAGE 3: OCR and Decoding
         # ---------------------------------------------------------
-        print("[INFO] Running Stage 3: CLAHE Preprocessing & OCR...")
-        processed_plate = preprocess_for_ocr(plate_crop)
-        
-        text, conf = ocr_processor.extract_text(processed_plate)
-        
+        # PP-OCRv4 was trained on natural (color/grayscale) text, so we feed the
+        # raw plate crop directly. The CRNN preprocessing handles resize/normalize.
+        print("[INFO] Running Stage 3: OCR...")
+        text, conf = ocr_processor.extract_text(plate_crop)
+
         print("=" * 40)
         print(f"FINAL RESULT - VEHICLE {idx + 1}")
         print(f"PLATE TEXT      : {text}")
